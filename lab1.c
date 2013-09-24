@@ -35,8 +35,9 @@ char letra_estado(fumantes f) {
 }
 
 void imprime_estado_global() {
-    printf("T: %c P: %c F: %c\n", letra_estado(Tabaco), letra_estado(Papel), 
-letra_estado(Fosforo));
+    printf("T: %c P: %c F: %c %d %d %d\n", letra_estado(Tabaco), 
+letra_estado(Papel), letra_estado(Fosforo), disponivel[0], disponivel[1], 
+disponivel[2]);
 }
 
 void *agente_a(void *id) {
@@ -109,6 +110,7 @@ void *fumante_a(void *id) {
         estado_global[Tabaco] = Fazendo;
         imprime_estado_global();
         pthread_mutex_unlock(&global);
+        sleep(1);
         
         sem_post(&agente);
         
@@ -117,6 +119,7 @@ void *fumante_a(void *id) {
         estado_global[Tabaco] = Fumando;
         imprime_estado_global();
         pthread_mutex_unlock(&global);
+        sleep(1);
         
         // Ele acaba de fumar, agora espera
         pthread_mutex_lock(&global);
@@ -138,6 +141,7 @@ void *fumante_b(void *id) {
         estado_global[Papel] = Fazendo;
         imprime_estado_global();
         pthread_mutex_unlock(&global);
+        sleep(1);
         
         sem_post(&agente);
         
@@ -146,6 +150,7 @@ void *fumante_b(void *id) {
         estado_global[Papel] = Fumando;
         imprime_estado_global();
         pthread_mutex_unlock(&global);
+        sleep(1);
         
         // Ele acaba de fumar, agora espera
         pthread_mutex_lock(&global);
@@ -167,6 +172,7 @@ void *fumante_c(void *id) {
         estado_global[Fosforo] = Fazendo;
         imprime_estado_global();
         pthread_mutex_unlock(&global);
+        sleep(1);
         
         sem_post(&agente);
         
@@ -175,6 +181,7 @@ void *fumante_c(void *id) {
         estado_global[Fosforo] = Fumando;
         imprime_estado_global();
         pthread_mutex_unlock(&global);
+        sleep(1);
         
         // Ele acaba de fumar, agora espera
         pthread_mutex_lock(&global);
@@ -297,7 +304,7 @@ t_fumantec, t_pushera, t_pusherb, t_pusherc;
     BITMAP *agente_b, *smoking, *smoking_not, *matches, 
 *paper, *tabaco_b, *gear;
 
-    agente_b = load_bmp("bitmaps/agente_b.bmp", NULL);
+    agente_b = load_bmp("bitmaps/agent_b.bmp", NULL);
     smoking = load_bmp("bitmaps/smoking.bmp", NULL);
     smoking_not = load_bmp("bitmaps/smoking_not.bmp", NULL);
     matches = load_bmp("bitmaps/matches.bmp", NULL);
@@ -310,11 +317,28 @@ t_fumantec, t_pushera, t_pusherb, t_pusherc;
         
         pthread_mutex_lock(&global);
         
+        printf("ALLEGRO\n");
+        imprime_estado_global();
+        
+        rectfill(buffer, 0, 0, SCREEN_W, SCREEN_H, makecol(255, 255, 255));
+        
         /* Desenha os fumantes */
         
         /* Desenha o Agente*/
+        draw_sprite(buffer, agente_b, 0, 135);
         
         /* Desenha os ingredientes disponiveis */
+        if (disponivel[Tabaco] == 1) {
+            draw_sprite(buffer, tabaco_b, 150, 175+0);
+        }
+        
+        if (disponivel[Fosforo] == 1) {
+            draw_sprite(buffer, matches, 150, 175+35);
+        }
+        
+        if (disponivel[Papel] == 1) {
+            draw_sprite(buffer, paper, 150, 175+90);
+        }
         
         /* Fim dos desenhos */
         
