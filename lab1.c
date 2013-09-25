@@ -317,6 +317,74 @@ t_fumantec, t_pushera, t_pusherb, t_pusherc;
         
         pthread_mutex_lock(&global);
         
+        draw_sprite(buffer, tabaco_b, 550, 60);
+        draw_sprite(buffer, paper, 550, 200);
+        draw_sprite(buffer, matches,550, 360);
+		
+		/* Desenha os fumantes */
+        
+		/*Se o estado global for f - desenha fumante ao centro da tela com engrenagem dar rest(10)*/
+		/*Se estado global for E - desenha fumante SEM cigarro à direita da tela*/
+		/*Se estado global for F - desenha fumante COM cigarro à direita da tela*/
+     
+        /*testa estado global do primeiro fumante*/
+        if (estado_global[0] == esperando){
+        	draw_sprite(screen, smoking_not, 600, 10);
+        }
+        else if (estado_global[0] == fumando]){
+        	draw_sprite(screen, smoking, 600, 10);
+        }
+        else{
+        	espera_animacao = 0;
+        	while (espera_animacao <= passos){
+        		
+        		/* codar etapas 
+				   etapa 1 - sai da direita até o centro
+				   etapa 2 - gira roda da engrenagem no centro
+				   etapa 3 - volta para a direita
+				*/
+        		
+        	}
+        }
+		/*testa estado global do segundo fumante*/
+        if (estado_global[1] == esperando){
+        	draw_sprite(screen, smoking_not, 600, 180);
+        }
+        else if (estado_global[1] == fumando]){
+        	draw_sprite(screen, smoking, 600, 180);
+        }
+        else{
+        	espera_animacao = 0;
+        	while (espera_animacao <= passos){
+        		
+        		/* codar etapas 
+				   etapa 1 - sai da direita até o centro
+				   etapa 2 - gira roda da engrenagem no centro
+				   etapa 3 - volta para a direita
+				*/
+        		
+        	}
+        }        
+		/*testa estado global do terceiro fumante*/
+        if (estado_global[2] == esperando){
+        	draw_sprite(screen, smoking_not, 600, 330);
+        }
+        else if (estado_global[2] == fumando]){
+        	draw_sprite(screen, smoking, 600, 330);
+        }
+        else{
+        	espera_animacao = 0;
+        	while (espera_animacao <= passos){
+        		
+        		/* codar etapas 
+				   etapa 1 - sai da direita até o centro
+				   etapa 2 - gira roda da engrenagem no centro
+				   etapa 3 - volta para a direita
+				*/
+        		
+        	}
+        }
+        
         printf("ALLEGRO\n");
         imprime_estado_global();
         
