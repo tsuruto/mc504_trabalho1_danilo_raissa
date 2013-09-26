@@ -343,8 +343,11 @@ t_fumantec, t_pushera, t_pusherb, t_pusherc;
         		for (passos=0,y=0,x=0;passos<passos_total/3;passos++){
         			draw_sprite(screen, smoking_not, (x - 60), (y - 40));
         		}
+        		/*segunda etapa faz a engrenagem rodar*/
         		for (passos=passos_total/3;passos<2*(passos_total/3);passos++){
-        			/*FAZ A ENGRENAGEM GIRAR*/
+        			rotate_sprite(screen, gear, 340, 340, 64);
+        			/*REFLEXÃO: devemos remover a engrenagem depois pra ela não ficar sobrando lá enquanto não tiver
+					nenhum fumante ???? */
         		}
         		/*terceira etapa volta para posição inicial*/
         		for (passos=2*(passos_total/3);passos<passos_total;passos++){
@@ -367,8 +370,11 @@ t_fumantec, t_pushera, t_pusherb, t_pusherc;
         		for (passos=0,y=0,x=0;passos<passos_total/3;passos++){
         			draw_sprite(screen, smoking_not, (x - 60), y);
         		}
+        		/*segunda etapa faz a engrenagem rodar*/
         		for (passos=passos_total/3;passos<2*(passos_total/3);passos++){
-        			/*FAZ A ENGRENAGEM GIRAR*/
+        			rotate_sprite(screen, gear, 340, 340, 64);
+        			/*REFLEXÃO: devemos remover a engrenagem depois pra ela não ficar sobrando lá enquanto não tiver
+					nenhum fumante ???? */
         		}
         		/*terceira etapa volta para posição inicial*/
         		for (passos=2*(passos_total/3);passos<passos_total;passos++){
@@ -391,8 +397,9 @@ t_fumantec, t_pushera, t_pusherb, t_pusherc;
         		for (passos=0,y=0,x=0;passos<passos_total/3;passos++){
         			draw_sprite(screen, smoking_not,(x - 60),(y + 40));
         		}
+        		/*segunda etapa, faz a engrenagem girar*/
         		for (passos=passos_total/3;passos<2*(passos_total/3);passos++){
-        			/*FAZ A ENGRENAGEM GIRAR*/
+        			rotate_sprite(screen, gear, 340, 340, 64);
         		}
         		/*terceira etapa volta para posição inicial*/
         		for (passos=2*(passos_total/3);passos<passos_total;passos++){
