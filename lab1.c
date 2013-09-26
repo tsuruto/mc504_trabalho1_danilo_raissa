@@ -312,6 +312,8 @@ t_fumantec, t_pushera, t_pusherb, t_pusherc;
     tabaco_b = load_bmp("bitmaps/tobacco.bmp", NULL);
     gear = load_bmp("bitmaps/gear.bmp", NULL);
     
+    int x, y, passos, passos_total = 15;
+    
     while (!key[KEY_ESC]) {
         BITMAP *buffer = create_bitmap(SCREEN_W, SCREEN_H);
         
@@ -335,15 +337,20 @@ t_fumantec, t_pushera, t_pusherb, t_pusherc;
         	draw_sprite(screen, smoking, 600, 10);
         }
         else{
-        	espera_animacao = 0;
-        	while (espera_animacao <= passos){
-        		
-        		/* codar etapas 
-				   etapa 1 - sai da direita até o centro
-				   etapa 2 - gira roda da engrenagem no centro
-				   etapa 3 - volta para a direita
-				*/
-        		
+        	passos = 0;
+        	while (passos < passos_total){
+        		/*primeira etapa anda até o meio, deslocando em x e em y*/
+        		for (passos=0,y=0,x=0;passos<passos_total/3;passos++){
+        			draw_sprite(screen, smoking_not, (x - 60), (y - 40));
+        		}
+        		for (passos=passos_total/3;passos<2*(passos_total/3);passos++){
+        			/*FAZ A ENGRENAGEM GIRAR*/
+        		}
+        		/*terceira etapa volta para posição inicial*/
+        		for (passos=2*(passos_total/3);passos<passos_total;passos++){
+        			/*volta pra posição inicial*/
+        			draw_sprite(screen, smoking_not, (x + 60), (y + 40));
+        		}
         	}
         }
 		/*testa estado global do segundo fumante*/
@@ -354,15 +361,20 @@ t_fumantec, t_pushera, t_pusherb, t_pusherc;
         	draw_sprite(screen, smoking, 600, 180);
         }
         else{
-        	espera_animacao = 0;
-        	while (espera_animacao <= passos){
-        		
-        		/* codar etapas 
-				   etapa 1 - sai da direita até o centro
-				   etapa 2 - gira roda da engrenagem no centro
-				   etapa 3 - volta para a direita
-				*/
-        		
+        	passos = 0;
+        	while (passos < passos_total){
+        		/*primeira etapa anda até o meio, deslocando apenas em x*/
+        		for (passos=0,y=0,x=0;passos<passos_total/3;passos++){
+        			draw_sprite(screen, smoking_not, (x - 60), y);
+        		}
+        		for (passos=passos_total/3;passos<2*(passos_total/3);passos++){
+        			/*FAZ A ENGRENAGEM GIRAR*/
+        		}
+        		/*terceira etapa volta para posição inicial*/
+        		for (passos=2*(passos_total/3);passos<passos_total;passos++){
+        			/*volta pra posição inicial*/
+        			draw_sprite(screen, smoking_not, (x + 60), y);
+        		}
         	}
         }        
 		/*testa estado global do terceiro fumante*/
@@ -373,15 +385,20 @@ t_fumantec, t_pushera, t_pusherb, t_pusherc;
         	draw_sprite(screen, smoking, 600, 330);
         }
         else{
-        	espera_animacao = 0;
-        	while (espera_animacao <= passos){
-        		
-        		/* codar etapas 
-				   etapa 1 - sai da direita até o centro
-				   etapa 2 - gira roda da engrenagem no centro
-				   etapa 3 - volta para a direita
-				*/
-        		
+        	passos = 0;
+        	while (passos < passos_total){
+        		/*primeira etapa anda até o meio, deslocando apenas em x*/
+        		for (passos=0,y=0,x=0;passos<passos_total/3;passos++){
+        			draw_sprite(screen, smoking_not,(x - 60),(y + 40));
+        		}
+        		for (passos=passos_total/3;passos<2*(passos_total/3);passos++){
+        			/*FAZ A ENGRENAGEM GIRAR*/
+        		}
+        		/*terceira etapa volta para posição inicial*/
+        		for (passos=2*(passos_total/3);passos<passos_total;passos++){
+        			/*volta pra posição inicial*/
+        			draw_sprite(screen, smoking_not,(x + 60),(y - 40));
+        		}
         	}
         }
         
