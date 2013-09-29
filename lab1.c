@@ -3,7 +3,7 @@
 #include <semaphore.h>
 #include <allegro.h>
 
-sem_t agente, fosforo, papel, tabaco, fosforo_sem, papel_sem, tabaco_sem;
+sem_t agente, fosforo, papel, tabaco, fosforo_sem, papel_sem, tabaco_sem, anima_sem;
 
 pthread_mutex_t mutex, global;
 
@@ -43,7 +43,8 @@ disponivel[2]);
 void *agente_a(void *id) {
     while (1) {
         sem_wait(&agente);
-        
+	sem_wait(&anima_sem);        
+
         pthread_mutex_lock(&global);
         printf("Liberou fosforo e papel!\n");
         disponivel[Tabaco] = 0;
@@ -63,6 +64,7 @@ void *agente_a(void *id) {
 void *agente_b(void *id) {
     while (1) {
         sem_wait(&agente);
+	sem_wait(&anima_sem);
         
         pthread_mutex_lock(&global);
         printf("Liberou fosforo e tabaco!\n");
@@ -83,6 +85,7 @@ void *agente_b(void *id) {
 void *agente_c(void *id) {
     while (1) {
         sem_wait(&agente);
+	sem_wait(&anima_sem);
         
         pthread_mutex_lock(&global);
         printf("Liberou papel e tabaco!\n");
@@ -271,7 +274,10 @@ t_fumantec, t_pushera, t_pusherb, t_pusherc;
     sem_init(&fosforo_sem, 0, 0);
     sem_init(&papel_sem, 0, 0);
     sem_init(&tabaco_sem, 0, 0);
-    
+    sem_init(&anima_sem, 0, 0);
+
+    sem_post(&anima_sem);    
+
     isTobacco = isPaper = isMatch = 0;
     
     pthread_create(&t_agentea, NULL, agente_a, NULL);
@@ -312,7 +318,7 @@ t_fumantec, t_pushera, t_pusherb, t_pusherc;
     tabaco_b = load_bmp("bitmaps/tobacco.bmp", NULL);
     gear = load_bmp("bitmaps/gear.bmp", NULL);
     
-    int x, y, passos, passos_total = 15;
+    int passos, passos_total = 3000;
     
     while (!key[KEY_ESC]) {
         BITMAP *buffer = create_bitmap(SCREEN_W, SCREEN_H);
@@ -326,74 +332,74 @@ t_fumantec, t_pushera, t_pusherb, t_pusherc;
 		/* Desenha os fumantes */
         
 		/*Se o estado global for f - desenha fumante ao centro da tela com engrenagem dar rest(10)*/
-		/*Se estado global for E - desenha fumante SEM cigarro à direita da tela*/
-		/*Se estado global for F - desenha fumante COM cigarro à direita da tela*/
+		/*Se estado global for E - desenha fumante SEM cigarro \E0 direita da tela*/
+		/*Se estado global for F - desenha fumante COM cigarro \E0 direita da tela*/
      
         /*testa estado global do primeiro fumante*/
-        if (estado_global[0] == esperando){
+        if (estado_global[0] == Esperando){
         	draw_sprite(screen, smoking_not, 600, 10);
         }
-        else if (estado_global[0] == fumando]){
+        else if (estado_global[0] == Fumando){
         	draw_sprite(screen, smoking, 600, 10);
         }
-        else{
+        else {
         	passos = 0;
         	while (passos < passos_total){
-        		/*primeira etapa anda até o meio, deslocando em x e em y*/
+        		/*primeira etapa anda at\E9 o meio, deslocando em x e em y*/
         		for (passos=0,y=0,x=0;passos<passos_total/3;passos++){
         			draw_sprite(screen, smoking_not, (x - 60), (y - 40));
         		}
         		/*segunda etapa faz a engrenagem rodar*/
         		for (passos=passos_total/3;passos<2*(passos_total/3);passos++){
         			rotate_sprite(screen, gear, 340, 340, 64);
-        			/*REFLEXÃO: devemos remover a engrenagem depois pra ela não ficar sobrando lá enquanto não tiver
+        			/*REFLEX\C3O: devemos remover a engrenagem depois pra ela n\E3o ficar sobrando l\E1 enquanto n\E3o tiver
 					nenhum fumante ???? */
         		}
-        		/*terceira etapa volta para posição inicial*/
+        		/*terceira etapa volta para posi\E7\E3o inicial*/
         		for (passos=2*(passos_total/3);passos<passos_total;passos++){
-        			/*volta pra posição inicial*/
+        			/*volta pra posi\E7\E3o inicial*/
         			draw_sprite(screen, smoking_not, (x + 60), (y + 40));
         		}
         	}
         }
 		/*testa estado global do segundo fumante*/
-        if (estado_global[1] == esperando){
+        if (estado_global[1] == Esperando){
         	draw_sprite(screen, smoking_not, 600, 180);
         }
-        else if (estado_global[1] == fumando]){
+        else if (estado_global[1] == Fumando){
         	draw_sprite(screen, smoking, 600, 180);
         }
         else{
         	passos = 0;
         	while (passos < passos_total){
-        		/*primeira etapa anda até o meio, deslocando apenas em x*/
+        		/*primeira etapa anda at\E9 o meio, deslocando apenas em x*/
         		for (passos=0,y=0,x=0;passos<passos_total/3;passos++){
         			draw_sprite(screen, smoking_not, (x - 60), y);
         		}
         		/*segunda etapa faz a engrenagem rodar*/
         		for (passos=passos_total/3;passos<2*(passos_total/3);passos++){
         			rotate_sprite(screen, gear, 340, 340, 64);
-        			/*REFLEXÃO: devemos remover a engrenagem depois pra ela não ficar sobrando lá enquanto não tiver
+        			/*REFLEX\C3O: devemos remover a engrenagem depois pra ela n\E3o ficar sobrando l\E1 enquanto n\E3o tiver
 					nenhum fumante ???? */
         		}
-        		/*terceira etapa volta para posição inicial*/
+        		/*terceira etapa volta para posi\E7\E3o inicial*/
         		for (passos=2*(passos_total/3);passos<passos_total;passos++){
-        			/*volta pra posição inicial*/
+        			/*volta pra posi\E7\E3o inicial*/
         			draw_sprite(screen, smoking_not, (x + 60), y);
         		}
         	}
         }        
 		/*testa estado global do terceiro fumante*/
-        if (estado_global[2] == esperando){
+        if (estado_global[2] == Esperando){
         	draw_sprite(screen, smoking_not, 600, 330);
         }
-        else if (estado_global[2] == fumando]){
+        else if (estado_global[2] == Fumando){
         	draw_sprite(screen, smoking, 600, 330);
         }
         else{
         	passos = 0;
         	while (passos < passos_total){
-        		/*primeira etapa anda até o meio, deslocando apenas em x*/
+        		/*primeira etapa anda at\E9 o meio, deslocando apenas em x*/
         		for (passos=0,y=0,x=0;passos<passos_total/3;passos++){
         			draw_sprite(screen, smoking_not,(x - 60),(y + 40));
         		}
@@ -401,16 +407,16 @@ t_fumantec, t_pushera, t_pusherb, t_pusherc;
         		for (passos=passos_total/3;passos<2*(passos_total/3);passos++){
         			rotate_sprite(screen, gear, 340, 340, 64);
         		}
-        		/*terceira etapa volta para posição inicial*/
+        		/*terceira etapa volta para posi\E7\E3o inicial*/
         		for (passos=2*(passos_total/3);passos<passos_total;passos++){
-        			/*volta pra posição inicial*/
+        			/*volta pra posi\E7\E3o inicial*/
         			draw_sprite(screen, smoking_not,(x + 60),(y - 40));
         		}
         	}
         }
         
-        printf("ALLEGRO\n");
-        imprime_estado_global();
+        //printf("ALLEGRO\n");
+        //imprime_estado_global();
         
         rectfill(buffer, 0, 0, SCREEN_W, SCREEN_H, makecol(255, 255, 255));
         
