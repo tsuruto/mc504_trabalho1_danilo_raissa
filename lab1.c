@@ -3,6 +3,9 @@
 #include <semaphore.h>
 #include <allegro.h>
 
+#define SLEEP_FUMA (10)
+#define SLEEP_FAZ (5)
+
 sem_t agente, fosforo, papel, tabaco, fosforo_sem, papel_sem, tabaco_sem, anima_sem;
 
 pthread_mutex_t mutex, global;
@@ -113,7 +116,7 @@ void *fumante_a(void *id) {
         estado_global[Tabaco] = Fazendo;
         imprime_estado_global();
         pthread_mutex_unlock(&global);
-        sleep(1);
+        sleep(SLEEP_FAZ);
         
         sem_post(&agente);
         
@@ -122,7 +125,7 @@ void *fumante_a(void *id) {
         estado_global[Tabaco] = Fumando;
         imprime_estado_global();
         pthread_mutex_unlock(&global);
-        sleep(1);
+        sleep(SLEEP_FUMA);
         
         // Ele acaba de fumar, agora espera
         pthread_mutex_lock(&global);
@@ -144,7 +147,7 @@ void *fumante_b(void *id) {
         estado_global[Papel] = Fazendo;
         imprime_estado_global();
         pthread_mutex_unlock(&global);
-        sleep(1);
+        sleep(SLEEP_FAZ);
         
         sem_post(&agente);
         
@@ -153,7 +156,7 @@ void *fumante_b(void *id) {
         estado_global[Papel] = Fumando;
         imprime_estado_global();
         pthread_mutex_unlock(&global);
-        sleep(1);
+        sleep(SLEEP_FUMA);
         
         // Ele acaba de fumar, agora espera
         pthread_mutex_lock(&global);
@@ -175,7 +178,7 @@ void *fumante_c(void *id) {
         estado_global[Fosforo] = Fazendo;
         imprime_estado_global();
         pthread_mutex_unlock(&global);
-        sleep(1);
+        sleep(SLEEP_FAZ);
         
         sem_post(&agente);
         
@@ -184,7 +187,7 @@ void *fumante_c(void *id) {
         estado_global[Fosforo] = Fumando;
         imprime_estado_global();
         pthread_mutex_unlock(&global);
-        sleep(1);
+        sleep(SLEEP_FUMA);
         
         // Ele acaba de fumar, agora espera
         pthread_mutex_lock(&global);
@@ -260,6 +263,68 @@ void *pusher_c(void *id) {
     return NULL;
 }
 
+void callback() {
+    if (key[KEY_ESC]) {
+        pthread_mutex_destroy(&mutex);
+        pthread_mutex_destroy(&global);
+        
+        sem_destroy(&agente);
+        sem_destroy(&fosforo);
+        sem_destroy(&papel);
+        sem_destroy(&tabaco);
+        sem_destroy(&fosforo_sem);
+        sem_destroy(&papel_sem);
+        sem_destroy(&tabaco_sem);
+        
+        exit(0);
+    }
+}
+
+void desenha_fumante(BITMAP *buffer, BITMAP *smoking, BITMAP *smoking_not,
+BITMAP *gear, int fumante, int passos, int passos_total, int offset) {
+    if (estado_global[fumante] == Fazendo) {
+        int x = 550;
+        int y = offset;
+        BITMAP *tmp = create_bitmap(SCREEN_W, SCREEN_H);
+        
+        blit(buffer, tmp, 0, 0, 0, 0, buffer->w, buffer->h);
+        
+        fixed ang;
+        
+        // Anda até o centro
+        for (passos = 0; passos < passos_total; ++passos, x-=10) {
+            blit(tmp, buffer, 0, 0, 0, 0, buffer->w, buffer->h);
+            
+            draw_sprite(buffer, smoking_not, x, y);
+                        
+            blit(buffer, screen, 0, 0, 0, 0, buffer->w, buffer->h);
+            rest_callback(75, callback);
+        }
+        
+        // Faz o cigarro
+        for (ang = 0, passos = 0; passos < passos_total*7; ang += 37, ++passos) {
+            blit(tmp, buffer, 0, 0, 0, 0, buffer->w, buffer->h);
+            
+            draw_sprite(buffer, smoking_not, x, y);
+            rotate_sprite(buffer, gear, x-50, y+50, itofix(ang));
+                        
+            blit(buffer, screen, 0, 0, 0, 0, buffer->w, buffer->h);
+            rest_callback(40, callback);        
+        }
+     
+     
+        // Volta a posicao
+        for (passos = 0; passos < passos_total; ++passos, x+=10) {
+            blit(tmp, buffer, 0, 0, 0, 0, buffer->w, buffer->h);
+            
+            draw_sprite(buffer, smoking_not, x, y);
+                        
+            blit(buffer, screen, 0, 0, 0, 0, buffer->w, buffer->h);
+            rest_callback(75, callback);
+        }   
+    }
+}
+
 int main(void) {
     pthread_t t_agentea, t_agenteb, t_agentec, t_fumantea, t_fumanteb, 
 t_fumantec, t_pushera, t_pusherb, t_pusherc;
@@ -276,7 +341,11 @@ t_fumantec, t_pushera, t_pusherb, t_pusherc;
     sem_init(&tabaco_sem, 0, 0);
     sem_init(&anima_sem, 0, 0);
 
-    sem_post(&anima_sem);    
+    sem_post(&anima_sem);
+    sem_post(&anima_sem);  
+    sem_post(&anima_sem); 
+    sem_post(&anima_sem); 
+    sem_post(&anima_sem);  
 
     isTobacco = isPaper = isMatch = 0;
     
@@ -318,109 +387,42 @@ t_fumantec, t_pushera, t_pusherb, t_pusherc;
     tabaco_b = load_bmp("bitmaps/tobacco.bmp", NULL);
     gear = load_bmp("bitmaps/gear.bmp", NULL);
     
-    int passos, passos_total = 3000;
+    int passos, passos_total = 27;
     
     while (!key[KEY_ESC]) {
         BITMAP *buffer = create_bitmap(SCREEN_W, SCREEN_H);
         
         pthread_mutex_lock(&global);
+
+	rectfill(buffer, 0, 0, SCREEN_W, SCREEN_H, makecol(255, 255, 255));
         
-        draw_sprite(buffer, tabaco_b, 550, 60);
-        draw_sprite(buffer, paper, 550, 200);
-        draw_sprite(buffer, matches,550, 360);
+        draw_sprite(buffer, tabaco_b, 490, 90);
+        draw_sprite(buffer, paper, 490, 230);
+        draw_sprite(buffer, matches, 490, 390);
+
+	textprintf_ex(buffer, font, 10, 10, makecol(255, 100, 200),
+		    -1, "Timestamp: %d", timestamp);
 		
-		/* Desenha os fumantes */
-        
-		/*Se o estado global for f - desenha fumante ao centro da tela com engrenagem dar rest(10)*/
-		/*Se estado global for E - desenha fumante SEM cigarro \E0 direita da tela*/
-		/*Se estado global for F - desenha fumante COM cigarro \E0 direita da tela*/
-     
-        /*testa estado global do primeiro fumante*/
-        if (estado_global[0] == Esperando){
-        	draw_sprite(screen, smoking_not, 600, 10);
-        }
-        else if (estado_global[0] == Fumando){
-        	draw_sprite(screen, smoking, 600, 10);
-        }
-        else {
-        	passos = 0;
-        	while (passos < passos_total){
-        		/*primeira etapa anda at\E9 o meio, deslocando em x e em y*/
-        		for (passos=0,y=0,x=0;passos<passos_total/3;passos++){
-        			draw_sprite(screen, smoking_not, (x - 60), (y - 40));
-        		}
-        		/*segunda etapa faz a engrenagem rodar*/
-        		for (passos=passos_total/3;passos<2*(passos_total/3);passos++){
-        			rotate_sprite(screen, gear, 340, 340, 64);
-        			/*REFLEX\C3O: devemos remover a engrenagem depois pra ela n\E3o ficar sobrando l\E1 enquanto n\E3o tiver
-					nenhum fumante ???? */
-        		}
-        		/*terceira etapa volta para posi\E7\E3o inicial*/
-        		for (passos=2*(passos_total/3);passos<passos_total;passos++){
-        			/*volta pra posi\E7\E3o inicial*/
-        			draw_sprite(screen, smoking_not, (x + 60), (y + 40));
-        		}
-        	}
-        }
-		/*testa estado global do segundo fumante*/
-        if (estado_global[1] == Esperando){
-        	draw_sprite(screen, smoking_not, 600, 180);
-        }
-        else if (estado_global[1] == Fumando){
-        	draw_sprite(screen, smoking, 600, 180);
-        }
-        else{
-        	passos = 0;
-        	while (passos < passos_total){
-        		/*primeira etapa anda at\E9 o meio, deslocando apenas em x*/
-        		for (passos=0,y=0,x=0;passos<passos_total/3;passos++){
-        			draw_sprite(screen, smoking_not, (x - 60), y);
-        		}
-        		/*segunda etapa faz a engrenagem rodar*/
-        		for (passos=passos_total/3;passos<2*(passos_total/3);passos++){
-        			rotate_sprite(screen, gear, 340, 340, 64);
-        			/*REFLEX\C3O: devemos remover a engrenagem depois pra ela n\E3o ficar sobrando l\E1 enquanto n\E3o tiver
-					nenhum fumante ???? */
-        		}
-        		/*terceira etapa volta para posi\E7\E3o inicial*/
-        		for (passos=2*(passos_total/3);passos<passos_total;passos++){
-        			/*volta pra posi\E7\E3o inicial*/
-        			draw_sprite(screen, smoking_not, (x + 60), y);
-        		}
-        	}
-        }        
-		/*testa estado global do terceiro fumante*/
-        if (estado_global[2] == Esperando){
-        	draw_sprite(screen, smoking_not, 600, 330);
-        }
-        else if (estado_global[2] == Fumando){
-        	draw_sprite(screen, smoking, 600, 330);
-        }
-        else{
-        	passos = 0;
-        	while (passos < passos_total){
-        		/*primeira etapa anda at\E9 o meio, deslocando apenas em x*/
-        		for (passos=0,y=0,x=0;passos<passos_total/3;passos++){
-        			draw_sprite(screen, smoking_not,(x - 60),(y + 40));
-        		}
-        		/*segunda etapa, faz a engrenagem girar*/
-        		for (passos=passos_total/3;passos<2*(passos_total/3);passos++){
-        			rotate_sprite(screen, gear, 340, 340, 64);
-        		}
-        		/*terceira etapa volta para posi\E7\E3o inicial*/
-        		for (passos=2*(passos_total/3);passos<passos_total;passos++){
-        			/*volta pra posi\E7\E3o inicial*/
-        			draw_sprite(screen, smoking_not,(x + 60),(y - 40));
-        		}
-        	}
-        }
+
+	
         
         //printf("ALLEGRO\n");
-        //imprime_estado_global();
+        //imprime_estado_global();  
         
-        rectfill(buffer, 0, 0, SCREEN_W, SCREEN_H, makecol(255, 255, 255));
+        int offsets[3];
         
-        /* Desenha os fumantes */
+        offsets[0] = 10;
+        offsets[1] = 180;
+        offsets[2] = 330;
+        
+        for (x = 0; x < 3; ++x) {
+            if (estado_global[x] == Esperando) {
+                draw_sprite(buffer, smoking_not, 550, offsets[x]);
+            } else if (estado_global[x] == Fumando) {
+                draw_sprite(buffer, smoking, 550, offsets[x]);
+            }       
+        }
+
         
         /* Desenha o Agente*/
         draw_sprite(buffer, agente_b, 0, 135);
@@ -438,6 +440,11 @@ t_fumantec, t_pushera, t_pusherb, t_pusherc;
             draw_sprite(buffer, paper, 150, 175+90);
         }
         
+        	/* Anima os fumantes */
+        desenha_fumante(buffer, smoking, smoking_not, gear, Tabaco, passos, passos_total, 10);
+        desenha_fumante(buffer, smoking, smoking_not, gear, Papel, passos, passos_total, 180);
+        desenha_fumante(buffer, smoking, smoking_not, gear, Fosforo, passos, passos_total, 330);
+        
         /* Fim dos desenhos */
         
         pthread_mutex_unlock(&global);
@@ -448,7 +455,7 @@ t_fumantec, t_pushera, t_pusherb, t_pusherc;
         
         timestamp = timestamp % 32000;
         
-        rest(20);
+        rest_callback(50, callback);
     }
     
     allegro_fim = 1;
