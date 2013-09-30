@@ -5,6 +5,7 @@
 
 #define SLEEP_FUMA (10)
 #define SLEEP_FAZ (5)
+#define SLEEP_INGREDIENTES (10)
 
 sem_t agente, fosforo, papel, tabaco, fosforo_sem, papel_sem, tabaco_sem, anima_sem;
 
@@ -46,7 +47,9 @@ disponivel[2]);
 void *agente_a(void *id) {
     while (1) {
         sem_wait(&agente);
-	sem_wait(&anima_sem);        
+		sem_wait(&anima_sem);        
+		
+		sleep(SLEEP_INGREDIENTES);
 
         pthread_mutex_lock(&global);
         printf("Liberou fosforo e papel!\n");
@@ -67,7 +70,9 @@ void *agente_a(void *id) {
 void *agente_b(void *id) {
     while (1) {
         sem_wait(&agente);
-	sem_wait(&anima_sem);
+	    sem_wait(&anima_sem);
+        
+        sleep(SLEEP_INGREDIENTES);
         
         pthread_mutex_lock(&global);
         printf("Liberou fosforo e tabaco!\n");
@@ -88,7 +93,9 @@ void *agente_b(void *id) {
 void *agente_c(void *id) {
     while (1) {
         sem_wait(&agente);
-	sem_wait(&anima_sem);
+	    sem_wait(&anima_sem);
+	    
+    	sleep(SLEEP_INGREDIENTES);
         
         pthread_mutex_lock(&global);
         printf("Liberou papel e tabaco!\n");
@@ -302,7 +309,7 @@ BITMAP *gear, int fumante, int passos, int passos_total, int offset) {
         }
         
         // Faz o cigarro
-        for (ang = 0, passos = 0; passos < passos_total*7; ang += 37, ++passos) {
+        for (ang = 0, passos = 0; passos < passos_total*3; ang += 37, ++passos) {
             blit(tmp, buffer, 0, 0, 0, 0, buffer->w, buffer->h);
             
             draw_sprite(buffer, smoking_not, x, y);
@@ -321,7 +328,10 @@ BITMAP *gear, int fumante, int passos, int passos_total, int offset) {
                         
             blit(buffer, screen, 0, 0, 0, 0, buffer->w, buffer->h);
             rest_callback(75, callback);
-        }   
+        }  
+        
+        // Libera mais uma etapa do processo
+        sem_post(&anima_sem); 
     }
 }
 
@@ -342,10 +352,6 @@ t_fumantec, t_pushera, t_pusherb, t_pusherc;
     sem_init(&anima_sem, 0, 0);
 
     sem_post(&anima_sem);
-    sem_post(&anima_sem);  
-    sem_post(&anima_sem); 
-    sem_post(&anima_sem); 
-    sem_post(&anima_sem);  
 
     isTobacco = isPaper = isMatch = 0;
     
@@ -401,7 +407,7 @@ t_fumantec, t_pushera, t_pusherb, t_pusherc;
         draw_sprite(buffer, matches, 490, 390);
 
 	textprintf_ex(buffer, font, 10, 10, makecol(255, 100, 200),
-		    -1, "Timestamp: %d", timestamp);
+		    -1, "Tempo: %d", timestamp/20);
 		
 
 	
