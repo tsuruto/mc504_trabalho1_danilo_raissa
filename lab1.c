@@ -329,13 +329,15 @@ BITMAP *gear, int fumante, int passos, int passos_total, int offset) {
             blit(buffer, screen, 0, 0, 0, 0, buffer->w, buffer->h);
             rest_callback(75, callback);
         }  
-        
-        // Libera mais uma etapa do processo
-        sem_post(&anima_sem); 
     }
 }
 
 int main(void) {
+    int cig;
+
+    printf("Quantos cigarros poderam ser feitos?\n"); 
+    scanf("%d", &cig);
+
     pthread_t t_agentea, t_agenteb, t_agentec, t_fumantea, t_fumanteb, 
 t_fumantec, t_pushera, t_pusherb, t_pusherc;
     
@@ -351,7 +353,11 @@ t_fumantec, t_pushera, t_pusherb, t_pusherc;
     sem_init(&tabaco_sem, 0, 0);
     sem_init(&anima_sem, 0, 0);
 
-    sem_post(&anima_sem);
+    int count;
+
+    if (cig > 0) {
+        for (count = 0; count < cig; ++count) sem_post(&anima_sem);
+    } else sem_post(&anima_sem);
 
     isTobacco = isPaper = isMatch = 0;
     
@@ -406,8 +412,8 @@ t_fumantec, t_pushera, t_pusherb, t_pusherc;
         draw_sprite(buffer, paper, 490, 230);
         draw_sprite(buffer, matches, 490, 390);
 
-	textprintf_ex(buffer, font, 10, 10, makecol(255, 100, 200),
-		    -1, "Tempo: %d", timestamp/20);
+	//textprintf_ex(buffer, font, 10, 10, makecol(255, 100, 200),
+	//	    -1, "Tempo: %d", timestamp/20);
 		
 
 	
